@@ -32,7 +32,8 @@ endif()
 
 include(GNUInstallDirs)
 message(>>> "CMAKE_INSTALL_LIBDIR: " ${CMAKE_INSTALL_LIBDIR})
-set(CMAKE_C_FLAGS, "${CMAKE_C_FLAGS} -std=c99")
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 ########################################################################
 
 ########################################################################
@@ -88,9 +89,9 @@ endif()
 ########################################################################
 install(
     FILES fobos-sdr.rules
-    DESTINATION "/etc/udev/rules.d"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/udev/rules.d"
     COMPONENT "udev"
-    )
+)
 ########################################################################
 
 ########################################################################
@@ -133,13 +134,17 @@ endif()
 
 target_include_directories(libfobos PUBLIC
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
-  $<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>/fobos
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/fobos>
+  $<INSTALL_INTERFACE:include>
   ${LIBUSB_INCLUDE_DIRS}
-  )
-  
-set_target_properties(libfobos PROPERTIES DEFINE_SYMBOL "FOBOS_EXPORTS")
-set_target_properties(libfobos PROPERTIES OUTPUT_NAME fobos)
+)
+
+set_target_properties(libfobos PROPERTIES
+    OUTPUT_NAME fobos
+    VERSION 0.0.0
+    SOVERSION 0
+    DEFINE_SYMBOL "FOBOS_EXPORTS"
+)
 ########################################################################
 
 ########################################################################
@@ -157,7 +162,7 @@ INSTALL(
 INSTALL(
     TARGETS libfobos
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-) 
+)
 ########################################################################
 
 ########################################################################
@@ -178,7 +183,7 @@ STRING(REPLACE ";" " " LIBFOBOS_PC_LIBS "${LIBFOBOS_PC_LIBS}")
 set(prefix "${CMAKE_INSTALL_PREFIX}")
 set(exec_prefix \${prefix})
 set(includedir \${prefix}/include)
-set(libdir \${exec_prefix}/lib)
+set(libdir \${exec_prefix}/${CMAKE_INSTALL_LIBDIR})
 
 CONFIGURE_FILE(
     ${CMAKE_CURRENT_SOURCE_DIR}/libfobos.pc.in
@@ -228,8 +233,8 @@ target_include_directories(fobos_devinfo PRIVATE ${CMAKE_SOURCE_DIR}/fobos)
 ########################################################################
 # Create executable fobos_recorder
 ########################################################################
-add_executable(fobos_recorder 
-    eval/fobos_recorder_main.c 
+add_executable(fobos_recorder
+    eval/fobos_recorder_main.c
     wav/wav_file.c)
 
 target_compile_options(fobos_recorder PUBLIC -std=c99)
