@@ -1,0 +1,5 @@
+libfobos (2.4.1-1) UNRELEASED; urgency=medium
+
+  * Initial release. (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Phil Karn <karn@sdr>  Sat, 02 May 2026 15:47:24 -0700

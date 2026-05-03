@@ -22,13 +22,12 @@
 ########################################################################
 # Project setup
 ########################################################################
-cmake_minimum_required(VERSION 3.7.2)
+cmake_minimum_required(VERSION 3.10)
 
-if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
-    project(fobos)
-else()
-    project(fobos C)
-endif()
+project(fobos
+	VERSION 2.4.1
+	LANGUAGES C
+)
 
 include(GNUInstallDirs)
 message(>>> "CMAKE_INSTALL_LIBDIR: " ${CMAKE_INSTALL_LIBDIR})
@@ -88,8 +87,8 @@ endif()
 # Install udev rules
 ########################################################################
 install(
-    FILES fobos-sdr.rules
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/udev/rules.d"
+    FILES 60-fobos-sdr.rules
+    DESTINATION "lib/udev/rules.d"
     COMPONENT "udev"
 )
 ########################################################################
