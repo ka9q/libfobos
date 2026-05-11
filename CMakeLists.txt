@@ -63,24 +63,8 @@ endif()
 ########################################################################
 # Find build dependencies
 ########################################################################
-find_package(PkgConfig)
-if(PKG_CONFIG_FOUND)
-    pkg_check_modules(LIBUSB libusb-1.0 IMPORTED_TARGET)
-    if(LIBUSB_LINK_LIBRARIES)
-        set(LIBUSB_LIBRARIES "${LIBUSB_LINK_LIBRARIES}")
-    endif()
-else()
-if (CMAKE_VS_PLATFORM_NAME STREQUAL Win32)
-	set(LIBUSB_LIBRARIES ${CMAKE_SOURCE_DIR}/libusb/MS32/dll)
-endif()
-if (CMAKE_VS_PLATFORM_NAME STREQUAL x64)
-    set(LIBUSB_LIBRARIES ${CMAKE_SOURCE_DIR}/libusb/MS64/dll)
-endif()
-    set(LIBUSB_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/libusb/include)
-endif()
-if(PKG_CONFIG_FOUND AND NOT LIBUSB_FOUND)
-    message(FATAL_ERROR "LibUSB 1.0 required")
-endif()
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBUSB REQUIRED IMPORTED_TARGET libusb-1.0)
 ########################################################################
 
 ########################################################################
@@ -125,17 +109,12 @@ ADD_CUSTOM_COMMAND(TARGET libfobos
 else()
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC AND NOT WIN32)
-    target_link_libraries(libfobos PRIVATE ${LIBUSB_LIBRARIES})
-else()
-    target_link_directories(libfobos PRIVATE ${LIBUSB_LIBRARIES})
-endif()
+target_link_libraries(libfobos PRIVATE PkgConfig::LIBUSB)	
 
 target_include_directories(libfobos PUBLIC
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/fobos>
   $<INSTALL_INTERFACE:include>
-  ${LIBUSB_INCLUDE_DIRS}
 )
 
 set_target_properties(libfobos PROPERTIES
@@ -216,17 +195,14 @@ add_executable(fobos_devinfo
 
 target_compile_options(fobos_devinfo PUBLIC -std=c99)
 
+target_include_directories(fobos_devinfo PRIVATE
+  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/fobos
+)
 target_link_libraries(fobos_devinfo PRIVATE libfobos)
 
-if(CMAKE_COMPILER_IS_GNUCC AND NOT WIN32)
-	target_link_libraries(fobos_devinfo PRIVATE ${LIBUSB_LIBRARIES})
-else()
-	target_link_directories(fobos_devinfo PRIVATE ${LIBUSB_LIBRARIES})
-endif()
 
-target_include_directories(fobos_devinfo PRIVATE ${CMAKE_SOURCE_DIR})
 
-target_include_directories(fobos_devinfo PRIVATE ${CMAKE_SOURCE_DIR}/fobos)
 ########################################################################
 
 ########################################################################
@@ -240,15 +216,10 @@ target_compile_options(fobos_recorder PUBLIC -std=c99)
 
 target_link_libraries(fobos_recorder PRIVATE libfobos)
 
-if(CMAKE_COMPILER_IS_GNUCC AND NOT WIN32)
-    target_link_libraries(fobos_recorder PRIVATE ${LIBUSB_LIBRARIES})
-else()
-    target_link_directories(fobos_recorder PRIVATE ${LIBUSB_LIBRARIES})
-endif()
-
-target_include_directories(fobos_recorder PRIVATE ${CMAKE_SOURCE_DIR})
-
-target_include_directories(fobos_recorder PRIVATE ${CMAKE_SOURCE_DIR}/fobos)
+target_include_directories(fobos_recorder PRIVATE
+  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/fobos
+)
 ########################################################################
 
 ########################################################################
@@ -259,17 +230,12 @@ add_executable(fobos_fwloader
 
 target_compile_options(fobos_fwloader PUBLIC -std=c99)
 
+target_include_directories(fobos_fwloader PRIVATE
+  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/fobos
+)
+
 target_link_libraries(fobos_fwloader PRIVATE libfobos)
-
-if(CMAKE_COMPILER_IS_GNUCC AND NOT WIN32)
-	target_link_libraries(fobos_fwloader PRIVATE ${LIBUSB_LIBRARIES})
-else()
-	target_link_directories(fobos_fwloader PRIVATE ${LIBUSB_LIBRARIES})
-endif()
-
-target_include_directories(fobos_fwloader PRIVATE ${CMAKE_SOURCE_DIR})
-
-target_include_directories(fobos_fwloader PRIVATE ${CMAKE_SOURCE_DIR}/fobos)
 ########################################################################
 
 
