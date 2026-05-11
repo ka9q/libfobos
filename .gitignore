@@ -27,7 +27,7 @@ install-sh
 stamp-h1
 libtool
 Doxyfile
-
+.DS_Store
 .tarball-version
 .version
 
