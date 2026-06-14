@@ -103,4 +103,4 @@ Please follow the rules:
 - do not make "pr-attack", do not stack pull requests
 - don to submit rarely used specific features
 - do not submit AI-generated, AI-driven, AI-related content
-- do not modify this rules
+- do not modify these rules
