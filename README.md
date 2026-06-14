@@ -49,8 +49,14 @@ cmake .. -A Win32
 ```
 
 Visit https://github.com/libusb/libusb/releases<br />
-Download any libusb release 7z pack, for example  libusb-1.0.27.7z<br />
-Unpack content of **libusb-1.0.27.7z** to **libusb** directory<br />
+Download a libusb release 7z pack, recommended libusb-1.0.21.7z<br />
+Unpack content of **libusb-1.0.21.7z** to **libusb** directory<br />
+
+> **Note**  More recent libusb releases are claimed:<br />
+Note: The Windows binaries in libusb-1.0.xx.7z are provided as-is and may not work for your toolchain. In that case, please build libusb from source using your own toolchain. <br />
+
+If you want to track the latest libusb version, please rebuild the Windows binaries and link manually to the project or edit the CMakeLists.txt for your own.<br />
+Onterwize use stable time-proved libusb-1.0.21 binaries and default CMakeLists.txt recepie. 
 ```
 cmake --build . --config Release
 ```
