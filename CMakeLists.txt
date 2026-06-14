@@ -131,7 +131,8 @@ if(MSVC)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBUSB_LIBRARIES}/libusb-1.0.dll ${PROJECT_BINARY_DIR}/Release
     )
 elseif(MINGW)
-    target_link_libraries(libfobos PRIVATE ${LIBUSB_LIBRARIES})    
+    target_link_directories(libfobos PRIVATE ${LIBUSB_LIBRARIES})    
+    target_link_libraries(libfobos PRIVATE usb-1.0)    
     add_custom_command(TARGET libfobos
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBUSB_LIBRARIES}/libusb-1.0.dll ${PROJECT_BINARY_DIR}
