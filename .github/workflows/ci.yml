@@ -26,7 +26,7 @@ jobs:
           os: macos-14
 
         - name: macOS Intel
-          os: macos-14-intel
+          os: macos-15-intel
 
         - name: MinGW
           os: windows-2022
