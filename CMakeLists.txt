@@ -113,7 +113,6 @@ message(>>> "VS Platform:         " ${CMAKE_VS_PLATFORM_NAME})
 message(>>> "LIBUSB_LIBRARIES:    " ${LIBUSB_LIBRARIES})
 message(>>> "LIBUSB_INCLUDE_DIRS: " ${LIBUSB_INCLUDE_DIRS})
 message(>>> "PROJECT_BINARY_DIR:  " ${PROJECT_BINARY_DIR})
-
 ########################################################################
 # Fobos SDR library
 ########################################################################
@@ -159,7 +158,8 @@ set_target_properties(libfobos PROPERTIES OUTPUT_NAME fobos)
 ########################################################################
 INSTALL(
     FILES fobos/fobos.h
-    DESTINATION include)
+    DESTINATION include
+)
 ########################################################################
 
 ########################################################################
@@ -167,7 +167,8 @@ INSTALL(
 ########################################################################
 INSTALL(
     TARGETS libfobos
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}) 
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+) 
 ########################################################################
 
 ########################################################################
@@ -222,7 +223,7 @@ add_executable(fobos_devinfo
 target_link_libraries(fobos_devinfo PRIVATE libfobos)
 if(MSVC)
     target_link_directories(fobos_devinfo PRIVATE ${LIBUSB_LIBRARIES})
-    target_compile_options(libfobos PUBLIC "/MT")
+    target_compile_options(fobos_fwloader PUBLIC "/MT")
 elseif(MINGW)    
     target_link_libraries(fobos_devinfo PRIVATE ${LIBUSB_LIBRARIES})	
 else()
@@ -242,7 +243,7 @@ add_executable(fobos_recorder
 target_link_libraries(fobos_recorder PRIVATE libfobos)
 if(MSVC)
     target_link_directories(fobos_recorder PRIVATE ${LIBUSB_LIBRARIES})
-    target_compile_options(libfobos PUBLIC "/MT")
+    target_compile_options(fobos_fwloader PUBLIC "/MT")
 elseif(MINGW)    
     target_link_libraries(fobos_recorder PRIVATE ${LIBUSB_LIBRARIES})	
 else()
@@ -261,7 +262,7 @@ add_executable(fobos_fwloader
 target_link_libraries(fobos_fwloader PRIVATE libfobos)
 if(MSVC)
     target_link_directories(fobos_fwloader PRIVATE ${LIBUSB_LIBRARIES})
-    target_compile_options(libfobos PUBLIC "/MT")
+    target_compile_options(fobos_fwloader PUBLIC "/MT")
 elseif(MINGW)    
     target_link_libraries(fobos_fwloader PRIVATE ${LIBUSB_LIBRARIES})	
 else()
