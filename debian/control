@@ -11,6 +11,15 @@ Homepage: https://rigexpert.com
 Vcs-Git: https://github.com/ka9q/libfobos-debian.git
 Vcs-Browser: https://github.com/ka9q/libfobos-debian
 
+Package: fobos-tools
+Section: utils
+Priority: optional
+Architecture: any
+Multi-Arch: same
+Depends: libfobos0 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Command line tools for RigExpert Fobos SDR
+ Simple test/info tools for the RigExpert Fobos SDR front end
+
 Package: libfobos-dev
 Section: libdevel
 Architecture: any

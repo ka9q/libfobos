@@ -280,6 +280,12 @@ target_include_directories(fobos_fwloader PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(fobos_fwloader PRIVATE ${CMAKE_SOURCE_DIR}/fobos)
 ########################################################################
 
+# install executables
+install(
+	TARGETS fobos_fwloader fobos_recorder fobos_devinfo
+	RUNTIME DESTINATION bin
+	COMPONENT tools
+)
 
 ########################################################################
 # Directories

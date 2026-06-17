@@ -176,7 +176,7 @@ int fobos_rx_get_api_info(char * lib_version, char * drv_version)
 {
     if (lib_version)
     {
-        strcpy(lib_version, LIB_VERSION" "__DATE__" "__TIME__);
+        strcpy(lib_version, LIB_VERSION);
     }
     if (drv_version)
     {
@@ -607,7 +607,7 @@ int fobos_rffc507x_set_lo_frequency_hz(struct fobos_dev_t * dev, uint64_t lo_fre
     fobos_rffc507x_commit(dev, 0);
 #ifdef FOBOS_PRINT_DEBUG
     double ff = (double)freq_hz;
-    printf_internal("rffc507x lo_freq_mhz = %lld %f\n", lo_freq_hz, ff);
+    printf_internal("rffc507x lo_freq_mhz = %llu %f\n", (unsigned long long)lo_freq_hz, ff);
 #endif // FOBOS_PRINT_DEBUG
     return 0;
 }
