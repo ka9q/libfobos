@@ -97,12 +97,12 @@ endif()
 # Install udev rules
 ########################################################################
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-   set(CMAKE_INSTALL_UDEVDIR "${CMAKE_INSTALL_LIBDIR}/udev/rules.d"
+   set(CMAKE_INSTALL_UDEVRULESDIR "lib/udev/rules.d"
        CACHE PATH "udev rules installation directory")
 
     install(
         FILES 73-fobos-sdr.rules
-        DESTINATION "${CMAKE_INSTALL_UDEVDIR}"
+        DESTINATION "${CMAKE_INSTALL_UDEVRULESDIR}"
         COMPONENT udev)
 endif()
 ########################################################################
