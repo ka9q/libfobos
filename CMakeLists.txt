@@ -98,7 +98,7 @@ endif()
 ########################################################################
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     install(
-        FILES fobos-sdr.rules
+        FILES 73-fobos-sdr.rules
         DESTINATION "/etc/udev/rules.d"
         COMPONENT "udev")
 endif()
@@ -151,6 +151,10 @@ target_include_directories(libfobos PUBLIC
   
 set_target_properties(libfobos PROPERTIES DEFINE_SYMBOL "FOBOS_EXPORTS")
 set_target_properties(libfobos PROPERTIES OUTPUT_NAME fobos)
+set_target_properties(libfobos PROPERTIES
+    VERSION 2.4.1
+    SOVERSION 0
+)
 ########################################################################
 
 ########################################################################
