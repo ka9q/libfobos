@@ -40,4 +40,5 @@ CMakeFiles
 debian/*.debhelper.log
 obj-x86_64-linux-gnu
 obj-aarch64-linux-gnu
+.*.~undo-tree~
 
