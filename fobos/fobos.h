@@ -46,6 +46,17 @@ extern "C"
 //==============================================================================
 struct fobos_dev_t;
 typedef void(*fobos_rx_cb_t)(float *buf, uint32_t buf_length, void *ctx);
+/*
+ * Raw receive buffers contain interleaved 16-bit ADC words exactly as supplied
+ * by the device, in Q,I word order. The 14-bit unsigned offset-binary sample
+ * is in bits 0..13.
+ * No masking, I/Q swapping, DC removal, gain correction, or scaling is done.
+ *
+ * The asynchronous buffer belongs to libfobos and is valid only until the
+ * callback returns. The callback runs on the libusb event-handling thread.
+ * buf_length is the number of complex samples (two uint16_t words each).
+ */
+typedef void(*fobos_rx_raw_cb_t)(const uint16_t *buf, uint32_t buf_length, void *ctx);
 //==============================================================================
 // obtain the software info
 API_EXPORT int CALL_CONV fobos_rx_get_api_info(char * lib_version, char * drv_version);
@@ -75,6 +86,8 @@ API_EXPORT int CALL_CONV fobos_rx_get_samplerates(struct fobos_dev_t * dev, doub
 API_EXPORT int CALL_CONV fobos_rx_set_samplerate(struct fobos_dev_t * dev, double value, double * actual);
 // statr the iq rx streaming
 API_EXPORT int CALL_CONV fobos_rx_read_async(struct fobos_dev_t * dev, fobos_rx_cb_t cb, void *ctx, uint32_t buf_count, uint32_t buf_length);
+// start raw iq streaming; callback buffer is valid only for the callback duration
+API_EXPORT int CALL_CONV fobos_rx_read_async_raw(struct fobos_dev_t * dev, fobos_rx_raw_cb_t cb, void *ctx, uint32_t buf_count, uint32_t buf_length);
 // stop the iq rx streaming
 API_EXPORT int CALL_CONV fobos_rx_cancel_async(struct fobos_dev_t * dev);
 // set user general purpose output bits (0x00 .. 0xFF)
@@ -87,8 +100,15 @@ API_EXPORT int CALL_CONV fobos_max2830_set_frequency(struct fobos_dev_t * dev, d
 API_EXPORT int CALL_CONV fobos_rffc507x_set_lo_frequency_hz(struct fobos_dev_t * dev, uint64_t lo_freq, uint64_t * tune_freq_hz);
 // start synchronous rx mode
 API_EXPORT int CALL_CONV fobos_rx_start_sync(struct fobos_dev_t * dev, uint32_t buf_length);
+// start synchronous raw rx mode without allocating a floating-point buffer
+API_EXPORT int CALL_CONV fobos_rx_start_sync_raw(struct fobos_dev_t * dev, uint32_t buf_length);
 // read samples in synchronous rx mode
 API_EXPORT int CALL_CONV fobos_rx_read_sync(struct fobos_dev_t * dev, float * buf, uint32_t * actual_buf_length);
+/*
+ * Read raw samples directly into buf. buf_length is its capacity in complex
+ * samples; actual_buf_length receives the number of complex samples read.
+ */
+API_EXPORT int CALL_CONV fobos_rx_read_sync_raw(struct fobos_dev_t * dev, uint16_t * buf, uint32_t buf_length, uint32_t * actual_buf_length);
 // stop synchronous rx mode
 API_EXPORT int CALL_CONV fobos_rx_stop_sync(struct fobos_dev_t * dev);
 // read firmware from the device

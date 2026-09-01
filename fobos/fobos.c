@@ -116,6 +116,8 @@ struct fobos_dev_t
     uint32_t rx_bw_adj;
     uint32_t rx_direct_sampling;
     fobos_rx_cb_t rx_cb;
+    fobos_rx_raw_cb_t rx_raw_cb;
+    int rx_raw_mode;
     void *rx_cb_ctx;
     enum fobos_async_status rx_async_status;
     int rx_async_cancel;
@@ -1908,11 +1910,21 @@ static void LIBUSB_CALL _libusb_callback(struct libusb_transfer *transfer)
         {
             //printf_internal(".");
             dev->rx_buff_counter++;
-            fobos_rx_convert_samples(dev, transfer->buffer, transfer->actual_length, dev->rx_buff);
             uint32_t complex_samples_count = transfer->actual_length / 4;
-            if (dev->rx_cb)
+            if (dev->rx_raw_mode)
             {
-                dev->rx_cb(dev->rx_buff, complex_samples_count, dev->rx_cb_ctx);
+                if (dev->rx_raw_cb)
+                {
+                    dev->rx_raw_cb((const uint16_t *)transfer->buffer, complex_samples_count, dev->rx_cb_ctx);
+                }
+            }
+            else
+            {
+                fobos_rx_convert_samples(dev, transfer->buffer, transfer->actual_length, dev->rx_buff);
+                if (dev->rx_cb)
+                {
+                    dev->rx_cb(dev->rx_buff, complex_samples_count, dev->rx_cb_ctx);
+                }
             }
         }
         else
@@ -1943,7 +1955,7 @@ static void LIBUSB_CALL _libusb_callback(struct libusb_transfer *transfer)
     }
 }
 //==============================================================================
-int fobos_rx_read_async(struct fobos_dev_t * dev, fobos_rx_cb_t cb, void *ctx, uint32_t buf_count, uint32_t buf_length)
+static int fobos_rx_read_async_common(struct fobos_dev_t * dev, fobos_rx_cb_t cb, fobos_rx_raw_cb_t raw_cb, int raw_mode, void *ctx, uint32_t buf_count, uint32_t buf_length)
 {
     int result = fobos_check(dev);
 #ifdef FOBOS_PRINT_DEBUG
@@ -1965,6 +1977,8 @@ int fobos_rx_read_async(struct fobos_dev_t * dev, fobos_rx_cb_t cb, void *ctx, u
     dev->rx_async_cancel = 0;
     dev->rx_buff_counter = 0;
     dev->rx_cb = cb;
+    dev->rx_raw_cb = raw_cb;
+    dev->rx_raw_mode = raw_mode;
     dev->rx_cb_ctx = ctx;
     dev->rx_avg_re = 0.0f;
     dev->rx_avg_im = 0.0f;
@@ -1995,7 +2009,16 @@ int fobos_rx_read_async(struct fobos_dev_t * dev, fobos_rx_cb_t cb, void *ctx, u
         return result;
     }
 
-    dev->rx_buff = (float*)malloc(buf_length * 2 * sizeof(float));
+    if (!raw_mode)
+    {
+        dev->rx_buff = (float*)malloc(buf_length * 2 * sizeof(float));
+        if (!dev->rx_buff)
+        {
+            fobos_free_buffers(dev);
+            dev->rx_async_status = FOBOS_IDDLE;
+            return FOBOS_ERR_NO_MEM;
+        }
+    }
 
     fobos_fx3_command(dev, 0xE1, 1, 0);        // start fx
 
@@ -2085,6 +2108,16 @@ int fobos_rx_read_async(struct fobos_dev_t * dev, fobos_rx_cb_t cb, void *ctx, u
     return result;
 }
 //==============================================================================
+int fobos_rx_read_async(struct fobos_dev_t * dev, fobos_rx_cb_t cb, void *ctx, uint32_t buf_count, uint32_t buf_length)
+{
+    return fobos_rx_read_async_common(dev, cb, NULL, 0, ctx, buf_count, buf_length);
+}
+//==============================================================================
+int fobos_rx_read_async_raw(struct fobos_dev_t * dev, fobos_rx_raw_cb_t cb, void *ctx, uint32_t buf_count, uint32_t buf_length)
+{
+    return fobos_rx_read_async_common(dev, NULL, cb, 1, ctx, buf_count, buf_length);
+}
+//==============================================================================
 int fobos_rx_cancel_async(struct fobos_dev_t * dev)
 {
     int result = fobos_check(dev);
@@ -2103,10 +2136,8 @@ int fobos_rx_cancel_async(struct fobos_dev_t * dev)
     return 0;
 }
 //==============================================================================
-int fobos_rx_start_sync(struct fobos_dev_t * dev, uint32_t buf_length)
+static int fobos_rx_start_sync_common(struct fobos_dev_t * dev, uint32_t buf_length, int raw_mode)
 {
-    int i = 0;
-    int actual = 0;
     int result = fobos_check(dev);
 #ifdef FOBOS_PRINT_DEBUG
     printf_internal("%s()\n", __FUNCTION__);
@@ -2128,19 +2159,37 @@ int fobos_rx_start_sync(struct fobos_dev_t * dev, uint32_t buf_length)
         buf_length = FOBOS_DEF_BUF_LENGTH;
     }
     buf_length = 128 * (buf_length / 128);
-    dev->rx_buff = (float*)malloc(buf_length * 2 * sizeof(float));
     dev->transfer_buf_size = buf_length * 4;
-    dev->rx_sync_buf = (unsigned char *)malloc(dev->transfer_buf_size);
-    if (dev->rx_sync_buf == 0)
+    if (!raw_mode)
     {
-        dev->transfer_buf_size = 0;
-        return FOBOS_ERR_NO_MEM;
+        dev->rx_buff = (float*)malloc(buf_length * 2 * sizeof(float));
+        dev->rx_sync_buf = (unsigned char *)malloc(dev->transfer_buf_size);
+        if (!dev->rx_buff || !dev->rx_sync_buf)
+        {
+            free(dev->rx_buff);
+            free(dev->rx_sync_buf);
+            dev->rx_buff = NULL;
+            dev->rx_sync_buf = NULL;
+            dev->transfer_buf_size = 0;
+            return FOBOS_ERR_NO_MEM;
+        }
     }
     fobos_fx3_command(dev, 0xE1, 1, 0);        // start fx
     bitclear(dev->dev_gpo, FOBOS_DEV_ADC_SDI);
     fobos_rx_set_dev_gpo(dev, dev->dev_gpo);
+    dev->rx_raw_mode = raw_mode;
     dev->rx_sync_started = 1;
     return FOBOS_ERR_OK;
+}
+//==============================================================================
+int fobos_rx_start_sync(struct fobos_dev_t * dev, uint32_t buf_length)
+{
+    return fobos_rx_start_sync_common(dev, buf_length, 0);
+}
+//==============================================================================
+int fobos_rx_start_sync_raw(struct fobos_dev_t * dev, uint32_t buf_length)
+{
+    return fobos_rx_start_sync_common(dev, buf_length, 1);
 }
 //==============================================================================
 int fobos_rx_read_sync(struct fobos_dev_t * dev, float * buf, uint32_t * actual_buf_length)
@@ -2158,6 +2207,10 @@ int fobos_rx_read_sync(struct fobos_dev_t * dev, float * buf, uint32_t * actual_
     {
         return FOBOS_ERR_SYNC_NOT_STARTED;
     }
+    if (dev->rx_raw_mode)
+    {
+        return FOBOS_ERR_UNSUPPORTED;
+    }
     result = libusb_bulk_transfer(
         dev->libusb_devh,
         LIBUSB_BULK_IN_ENDPOINT,
@@ -2172,6 +2225,46 @@ int fobos_rx_read_sync(struct fobos_dev_t * dev, float * buf, uint32_t * actual_
         {
             *actual_buf_length = actual / 4;
         }
+    }
+    return result;
+}
+//==============================================================================
+int fobos_rx_read_sync_raw(struct fobos_dev_t * dev, uint16_t * buf, uint32_t buf_length, uint32_t * actual_buf_length)
+{
+    int actual = 0;
+    int result = fobos_check(dev);
+    if (result != FOBOS_ERR_OK)
+    {
+        return result;
+    }
+    if (dev->rx_sync_started != 1)
+    {
+        return FOBOS_ERR_SYNC_NOT_STARTED;
+    }
+    if (!dev->rx_raw_mode)
+    {
+        return FOBOS_ERR_UNSUPPORTED;
+    }
+    if (!buf || buf_length == 0)
+    {
+        return FOBOS_ERR_NO_MEM;
+    }
+
+    uint64_t requested_bytes = (uint64_t)buf_length * 4;
+    if (requested_bytes > dev->transfer_buf_size)
+    {
+        requested_bytes = dev->transfer_buf_size;
+    }
+    result = libusb_bulk_transfer(
+        dev->libusb_devh,
+        LIBUSB_BULK_IN_ENDPOINT,
+        (unsigned char *)buf,
+        (int)requested_bytes,
+        &actual,
+        LIBUSB_BULK_TIMEOUT);
+    if (result == FOBOS_ERR_OK && actual_buf_length)
+    {
+        *actual_buf_length = (uint32_t)actual / 4;
     }
     return result;
 }
