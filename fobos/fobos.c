@@ -17,6 +17,7 @@
 //  2025.01.19 - v.2.3.2 fobos_rx_reset()
 //  2025.08.23 - v.2.4.0 DC filter improved, VGA gain fixed
 //  2025.10.23 - v.2.4.1 new software DC filter
+//  2026.09.01 - v.2.5.0 add raw mode
 //==============================================================================
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS

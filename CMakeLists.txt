@@ -155,7 +155,7 @@ target_include_directories(libfobos PUBLIC
 set_target_properties(libfobos PROPERTIES DEFINE_SYMBOL "FOBOS_EXPORTS")
 set_target_properties(libfobos PROPERTIES OUTPUT_NAME fobos)
 set_target_properties(libfobos PROPERTIES
-    VERSION 2.4.1
+    VERSION 2.5.0
     SOVERSION 0
 )
 ########################################################################
