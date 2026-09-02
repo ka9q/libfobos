@@ -1,3 +1,6 @@
+v.2.5.0(beta)
+- raw mode, synthesizer accuracy fixes
+
 v.2.4.1(beta)
 - new software DC filter
 
