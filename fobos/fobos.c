@@ -405,10 +405,10 @@ int fobos_max2830_set_frequency(struct fobos_dev_t * dev, double value, double *
     }
     double div = value / fcomp;
     uint32_t div_int = (uint32_t)(div) & 0x000000FF;
-    uint32_t div_frac = (uint32_t)((div - div_int) * 1048575.0 + 0.5);
+    uint32_t div_frac = (uint32_t)((div - div_int) * 1048576.0);
     if (actual)
     {
-        div = (double)(div_int) + (double)(div_frac) / 1048575.0;
+        div = (double)(div_int) + (double)(div_frac) / 1048576.0;
         *actual = div * fcomp;
     }
     fobos_max2830_write_reg(dev, 3, ((div_frac << 8) | div_int) & 0x3FFF);
@@ -545,7 +545,7 @@ int fobos_rffc507x_init(struct fobos_dev_t * dev)
     return FOBOS_ERR_NO_DEV;
 }
 //==============================================================================
-int fobos_rffc507x_set_lo_frequency_hz(struct fobos_dev_t * dev, uint64_t lo_freq_hz, uint64_t * tune_freq_hz)
+int fobos_rffc507x_set_lo_frequency_hz(struct fobos_dev_t * dev, uint64_t lo_freq_hz, double * tune_freq_hz)
 {
     uint64_t lodiv;
     uint64_t fvco;
@@ -586,7 +586,7 @@ int fobos_rffc507x_set_lo_frequency_hz(struct fobos_dev_t * dev, uint64_t lo_fre
 
     p1nmsb = (tmp_n >> 13ULL) & 0xffff;
     p1nlsb = (tmp_n >> 5ULL) & 0xff;
-    uint64_t freq_hz = (fref * (tmp_n >> 5ULL) * fbkdiv) / (lodiv * (1 << 24ULL));
+    double freq_hz = (fref * ((tmp_n >> 5ULL) + 0.5) * fbkdiv) / (lodiv * (1 << 24ULL));
     if (tune_freq_hz)
     {
         *tune_freq_hz = freq_hz;
@@ -609,8 +609,7 @@ int fobos_rffc507x_set_lo_frequency_hz(struct fobos_dev_t * dev, uint64_t lo_fre
     fobos_rffc507x_register_modify(&dev->rffc507x_registers_local[0x15], 14, 14, 1); // enbl = 1
     fobos_rffc507x_commit(dev, 0);
 #ifdef FOBOS_PRINT_DEBUG
-    double ff = (double)freq_hz;
-    printf_internal("rffc507x lo_freq_mhz = %llu %f\n", (unsigned long long)lo_freq_hz, ff);
+    printf_internal("rffc507x lo_freq_mhz = %llu %f\n", (unsigned long long)lo_freq_hz, freq_hz);
 #endif // FOBOS_PRINT_DEBUG
     return 0;
 }
@@ -1242,7 +1241,7 @@ int fobos_rx_set_frequency(struct fobos_dev_t * dev, double value, double * actu
         double max2830_freq = 0.0;
         double max2830_freq_actual = 0.0;
         uint64_t RFFC5071_freq;
-        uint64_t RFFC5071_freq_hz_actual;
+        double RFFC5071_freq_hz_actual;
         double rx_frequency = 0.0;
         switch (fobos_rx_bands[idx].rffc507x_inject)
         {

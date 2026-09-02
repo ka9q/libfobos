@@ -97,7 +97,7 @@ API_EXPORT int CALL_CONV fobos_rx_set_clk_source(struct fobos_dev_t * dev, int v
 // explicitly set the max2830 frequency, Hz (23500000000 .. 2550000000)
 API_EXPORT int CALL_CONV fobos_max2830_set_frequency(struct fobos_dev_t * dev, double value, double * actual);
 // explicitly set rffc507x frequency, Hz (25000000 .. 5400000000)
-API_EXPORT int CALL_CONV fobos_rffc507x_set_lo_frequency_hz(struct fobos_dev_t * dev, uint64_t lo_freq, uint64_t * tune_freq_hz);
+API_EXPORT int CALL_CONV fobos_rffc507x_set_lo_frequency_hz(struct fobos_dev_t * dev, uint64_t lo_freq, double * tune_freq_hz);
 // start synchronous rx mode
 API_EXPORT int CALL_CONV fobos_rx_start_sync(struct fobos_dev_t * dev, uint32_t buf_length);
 // start synchronous raw rx mode without allocating a floating-point buffer
