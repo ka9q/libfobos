@@ -2321,7 +2321,7 @@ int fobos_rx_write_firmware(struct fobos_dev_t* dev, const char * file_name, int
     }
     result = FOBOS_ERR_OK;
     uint16_t xx_size = 1024;
-    uint16_t xx_count = (uint16_t)(file_size + xx_size - 1)/ xx_size;
+    uint16_t xx_count = (uint16_t)((file_size + xx_size - 1)/ xx_size);
     uint8_t * file_data = (uint8_t * )malloc(xx_count * xx_size);
     fseek(f, 0, SEEK_SET);
     size_t read = fread(file_data, file_size, 1, f);
