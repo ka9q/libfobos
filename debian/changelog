@@ -1,3 +1,10 @@
+libfobos (2.5.1-2-trixie1) trixie; urgency=medium
+
+  * commit 6d2677f4129dc73bc17fa2afeda9bfe7a20dbccf
+  * bump version of fobos.c to 2.5.1
+
+ -- Phil Karn <karn@ka9q.net>  Fri, 11 Sep 2026 23:46:30 -0700
+
 libfobos (2.5.1-1-trixie1) trixie; urgency=medium
 
   * commit 25d92277c9588bbd5b4c6407b197f3462abe2668
