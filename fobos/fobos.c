@@ -18,6 +18,7 @@
 //  2025.08.23 - v.2.4.0 DC filter improved, VGA gain fixed
 //  2025.10.23 - v.2.4.1 new software DC filter
 //  2026.09.01 - v.2.5.0 add raw mode
+//  2026.09.12 - v.2.5.1 fix segfault in firmware writer
 //==============================================================================
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -42,7 +43,7 @@
 //==============================================================================
 //#define FOBOS_PRINT_DEBUG
 //==============================================================================
-#define LIB_VERSION "2.5.0"
+#define LIB_VERSION "2.5.1"
 #define DRV_VERSION "libusb"
 //==============================================================================
 #define FOBOS_VENDOR_ID             0x16d0
