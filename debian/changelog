@@ -1,3 +1,10 @@
+libfobos (2.5.1-1-trixie1) trixie; urgency=medium
+
+  * commit 25d92277c9588bbd5b4c6407b197f3462abe2668
+  * fix segfault in firmware write
+
+ -- Phil Karn <karn@ka9q.net>  Fri, 11 Sep 2026 22:57:48 -0700
+
 libfobos (2.5.0-1-trixie1) trixie; urgency=medium
 
   * add integer sample raw mode, fix synthesizer accuracy
